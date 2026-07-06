@@ -4,6 +4,9 @@ A clean, Catppuccin-inspired SDDM login theme built with QML for Plasma 6 / Qt6.
 
 ![Catlogin preview](preview.png)
 
+## Requirements
+- SDDM with Qt6 support (QtVersion=6)
+- Qt6 SVG plugin (only if using SVG icons — qt6-svg / libQt6Svg6 / qt6-qtsvg depending on distro)
 
 ## Credit
 
