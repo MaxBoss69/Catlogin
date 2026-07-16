@@ -233,7 +233,7 @@ Rectangle {
                     sddm.login(
                         usernameField.text,
                         passwordField.text,
-                        sessionModel.lastIndex
+                        sessionSwitcher.selectedIndex
                     )
                 }
             }
@@ -281,6 +281,11 @@ Rectangle {
             iconSource: config.shutdownIcon
             label: "Shut Down"
             onClicked: sddm.powerOff()
+        }
+
+        SessionSwitcher {
+            id: sessionSwitcher
+            iconSource: config.sessionIcon // ver nota abajo
         }
 
     }
