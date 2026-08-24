@@ -22,6 +22,7 @@ Rectangle {
 
     WaveBar {
 
+        id: waveBar
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: 400
@@ -283,20 +284,30 @@ Rectangle {
             onClicked: sddm.powerOff()
         }
 
+        
         SessionSwitcher {
             id: sessionSwitcher
             iconSource: config.sessionIcon // ver nota abajo
         }
+        
 
     }
 
     // sddm login stuff
     Connections {
         target: sddm
-        function onLoginFailed() {
-            errorText.text = "Login failed"
-            errorText.visible = true
-            passwordField.text = ""
-        }
+
+    function onLoginSucceeded() {
+        // stopping the animation manually
+        // sddm apparently still keeps running in the background even after login
+        // unnessecary to keep the animation going on in that linger state
+        waveBar.timerRunning = false
+    }
+    function onLoginFailed() {
+        errorText.text = "Login failed"
+        errorText.visible = true
+        passwordField.text = ""
+    }
+
     }
 }

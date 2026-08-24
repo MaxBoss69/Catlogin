@@ -32,10 +32,12 @@ Item {
     ]
 
     property var gradientStopsRgb: []
+    property alias timerRunning: waveTimer.running
 
     height: 100
 
     Timer {
+        id: waveTimer
         interval: 16
         running: true
         repeat: true
