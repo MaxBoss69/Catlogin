@@ -288,6 +288,7 @@ Rectangle {
         SessionSwitcher {
             id: sessionSwitcher
             iconSource: config.sessionIcon // ver nota abajo
+            visible: config.sessionSwitcherEnabled.toString().toLowerCase() == "true"
         }
         
 
