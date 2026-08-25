@@ -17,7 +17,12 @@ Rectangle {
     height: 45
     radius: height / 2
 
-    border.color: config.borderColor
+    border.color: field.activeFocus ? config.primaryTextColor : config.borderColor
+
+    Behavior on border.color {
+        ColorAnimation { duration: 150 }
+    }
+
     color: config.backgroundColor
 
     Row {
