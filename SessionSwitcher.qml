@@ -6,6 +6,9 @@ Item {
 
     property alias iconSource: icon.source
     property alias selectedIndex: sessionCombo.currentIndex
+    property alias popup: sessionCombo.popup
+
+    property Item uiRoot: null
 
     height: 40
     width: 140
@@ -49,6 +52,9 @@ Item {
         // Session ComboBox
         ComboBox {
             id: sessionCombo
+
+            activeFocusOnTab: false
+
             width: root.width - iconRect.width - spacer.width
             height: root.height
             model: sessionModel
@@ -95,10 +101,23 @@ Item {
 
             // popup
             popup: Popup {
+                id: sessionPopup
+
                 y: sessionCombo.height + 5
                 width: Math.max(sessionCombo.width, 160)
-                implicitHeight: contentItem.implicitHeight
                 padding: 6
+
+                // open below: full content height capped to the space
+                // available down to the screen bottom (min 60px)
+                height: {
+                    var full = contentItem.implicitHeight + topPadding + bottomPadding
+                    var below = full
+                    if (root.uiRoot) {
+                        var p = sessionCombo.mapToItem(root.uiRoot, 0, sessionCombo.height)
+                        below = root.uiRoot.height - p.y - 10
+                    }
+                    return Math.min(full, Math.max(60, below))
+                }
 
                 background: Rectangle {
                     color: config.cardBackgroundColor

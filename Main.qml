@@ -8,6 +8,14 @@ Rectangle {
     height: 1080
     color: config.backgroundColor
 
+    // visibility of the card
+    readonly property bool uiVisible: pointerTracker.hovered || sessionSwitcher.popup.visible
+
+    HoverHandler {
+        id: pointerTracker
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+    }
+
     FontLoader {
         id: dayFont
         source: config.fancyDateFont
@@ -24,274 +32,307 @@ Rectangle {
 
         id: waveBar
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 400
+        anchors.top: contentGroup.top
+        anchors.topMargin: 205
 
         width: parent.width
         height: 100
     }
 
-    Component.onCompleted: passwordField.forceActiveFocus()
-
-    // card
-    Rectangle {
-
-        visible: true
-
-        id: card
-
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 200
-
-        width: 450
-        height: 590
-
-        color: config.cardBackgroundColor
-        border.color: config.borderColor
-        border.width: 2
-        radius: 35
-
-        // vertical layout
-        Column {
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: 0
-
-
-            // Top Border - Avatar spacer. width needs at least 1. will be skipped if 0
-            Item { 
-                width: 1
-                height: 50
-            }
-
-            // avatar container
-            Rectangle {
-
-                anchors.horizontalCenter: parent.horizontalCenter
-
-                width: 125
-                height: width
-                radius: width / 2
-
-                border.color: config.borderColor
-                border.width: 1
-                clip: true
-        
-
-                // avatar
-                Image {
-
-                    anchors.fill: parent
-                    source: config.avatar
-
-                    fillMode: Image.PreserveAspectCrop
-                    smooth: true
-                    mipmap: true
-                }
-                
-            }
-
-            // Avatar - Date spacer. width needs at least 1. will be skipped if 0
-            Item { 
-                width: 1
-                height: 20
-            }
-
-            // positioning the wekkday and date closer together
-            Column {
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: -20
-
-
-                // weekday
-                Text {
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    font.family: dayFont.name
-                    font.pointSize: 100
-                    color: config.primaryTextColor
-
-                    text: {
-                            var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-                            return days[new Date().getDay()]
-                    }
-                }
-
-                // date container
-                Rectangle {
-                    anchors.horizontalCenter: parent.horizontalCenter
-
-                    height: 35
-                    width: 80
-
-                    radius: height/2
-                    color: config.primaryTextColor
-
-                    // date
-                    Text {
-                        id:date
-
-                        anchors.centerIn: parent
-
-                        font.pointSize: 12
-                        font.weight: Font.DemiBold
-                        color: config.secondaryTextColor
-
-                        // day / month
-                        text: {
-                            var now = new Date()
-                            var day = String(now.getDate()).padStart(2, "0")
-                            var month = String(now.getMonth() + 1).padStart(2, "0")
-                            return day + " / " + month
-                        }
-                    }
-                }
-
-            }
-
-            // Date - Username spacer. width needs at least 1. will be skipped if 0
-            Item { 
-                width: 1
-                height: 40
-            }
-
-            InputField {
-                id: usernameField
-                iconSource: config.usernameIcon
-                placeholderText: "Username"
-                text: userModel.lastUser
-                onAccepted: passwordField.forceActiveFocus()
-                fieldFocus: false
-            }
-
-            // Username - Password spacer. width needs at least 1. will be skipped if 0
-            Item { 
-                width: 1
-                height: 15
-            }
-
-            InputField {
-                id: passwordField
-                iconSource: config.passwordIcon
-                placeholderText: "Password"
-                echoMode: TextInput.Password
-                onAccepted: loginButton.clicked()
-                fieldFocus: true
-            }
-
-            // Password - Login button spacer. width needs at least 1. will be skipped if 0
-            Item { 
-                width: 1
-                height: 20
-            }
-
-            // Login Button
-            Button {
-                id: loginButton
-
-                width: parent.width
-                height: 45
-
-                // Text
-                contentItem: Text {
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-
-                    text: "Login"
-
-                    color: config.secondaryTextColor
-                    font.bold: true
-                    font.pointSize: 12
-
-                }
-
-                HoverHandler {
-                    cursorShape: Qt.PointingHandCursor
-                }
-
-                // background gradiant
-                background: Rectangle {
-                    radius: 25
-
-                    scale: loginButton.hovered ? (loginButton.pressed ? 1.05 : 1.03) : 1.0
-
-                    Behavior on scale { NumberAnimation { duration: 80 } }
-
-                    gradient: Gradient {
-                        orientation: Gradient.Horizontal
-
-                        GradientStop { position: 0; color: config.red }
-                        GradientStop { position: 0.166*1; color: config.orange }
-                        GradientStop { position: 0.166*2; color: config.yellow }
-                        GradientStop { position: 0.166*3; color: config.green }
-                        GradientStop { position: 0.166*4; color: config.blue }
-                        GradientStop { position: 1.0; color: config.purple }
-                    }
-                }
-
-                onClicked: {
-
-                    sddm.login(
-                        usernameField.text,
-                        passwordField.text,
-                        sessionSwitcher.selectedIndex
-                    )
-                }
-            }
-
-            // Login Button - error text spacer. width needs at least 1. will be skipped if 0
-            Item { 
-                width: 1
-                height: 10
-            }
-
-            // error text
-            Text {
-                id: errorText
-                text: "Error haja"
-                color: config.red
-                visible: false
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-        }
-    
+    // if username is empty focus username field
+    Component.onCompleted: {
+        if (usernameField.text === "")
+            usernameField.field.forceActiveFocus()
+        else
+            passwordField.field.forceActiveFocus()
     }
 
-    // quick actions
-    Row {
 
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: card.bottom
-        anchors.topMargin: 60
+    // content group centered vertically
+    Item {
+        id: contentGroup
 
-        spacing: 30
+        anchors.centerIn: parent
 
-        QuickAction {
-            iconSource: config.sleepIcon
-            label: "Sleep"
-            onClicked: sddm.suspend()
-        }
+        width: card.width
+        height: card.height + 60 + quickActions.height
+
+        // card
+        Rectangle {
+
+            visible: opacity > 0
+
+            id: card
+
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            
+            opacity: root.uiVisible ? 1 : 0
+            
+            Behavior on opacity {
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+            }
+
+            width: 450
+            height: 590
+
+            color: config.cardBackgroundColor
+            border.color: config.borderColor
+            border.width: 2
+            radius: 35
+
+            // vertical layout
+            Column {
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 0
+
+
+                // Top Border - Avatar spacer. width needs at least 1. will be skipped if 0
+                Item { 
+                    width: 1
+                    height: 50
+                }
+
+                // avatar container
+                Rectangle {
+
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    width: 125
+                    height: width
+                    radius: width / 2
+
+                    border.color: config.borderColor
+                    border.width: 1
+                    clip: true
+            
+
+                    // avatar
+                    Image {
+
+                        anchors.fill: parent
+                        source: config.avatar
+
+                        fillMode: Image.PreserveAspectCrop
+                        smooth: true
+                        mipmap: true
+                    }
+                    
+                }
+
+                // Avatar - Date spacer. width needs at least 1. will be skipped if 0
+                Item { 
+                    width: 1
+                    height: 20
+                }
+
+                // positioning the wekkday and date closer together
+                Column {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: -20
+
+
+                    // weekday
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        font.family: dayFont.name
+                        font.pointSize: 100
+                        color: config.primaryTextColor
+
+                        text: {
+                                var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+                                return days[new Date().getDay()]
+                        }
+                    }
+
+                    // date container
+                    Rectangle {
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        height: 35
+                        width: 80
+
+                        radius: height/2
+                        color: config.primaryTextColor
+
+                        // date
+                        Text {
+                            id:date
+
+                            anchors.centerIn: parent
+
+                            font.pointSize: 12
+                            font.weight: Font.DemiBold
+                            color: config.secondaryTextColor
+
+                            // day / month
+                            text: {
+                                var now = new Date()
+                                var day = String(now.getDate()).padStart(2, "0")
+                                var month = String(now.getMonth() + 1).padStart(2, "0")
+                                return day + " / " + month
+                            }
+                        }
+                    }
+
+                }
+
+                // Date - Username spacer. width needs at least 1. will be skipped if 0
+                Item { 
+                    width: 1
+                    height: 40
+                }
+
+                InputField {
+                    id: usernameField
+                    iconSource: config.usernameIcon
+                    placeholderText: "Username"
+                    text: userModel.lastUser
+                    onAccepted: passwordField.forceActiveFocus()
+                    fieldFocus: false
+                }
+
+                // Username - Password spacer. width needs at least 1. will be skipped if 0
+                Item { 
+                    width: 1
+                    height: 15
+                }
+
+                InputField {
+                    id: passwordField
+                    iconSource: config.passwordIcon
+                    placeholderText: "Password"
+                    echoMode: TextInput.Password
+                    onAccepted: loginButton.clicked()
+                    fieldFocus: true
+                }
+
+                // Password - Login button spacer. width needs at least 1. will be skipped if 0
+                Item { 
+                    width: 1
+                    height: 20
+                }
+
+                // Login Button
+                Button {
+                    id: loginButton
+
+                    activeFocusOnTab: false
+
+                    width: parent.width
+                    height: 45
+
+                    // Text
+                    contentItem: Text {
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+
+                        text: "Login"
+
+                        color: config.secondaryTextColor
+                        font.bold: true
+                        font.pointSize: 12
+
+                    }
+
+                    HoverHandler {
+                        cursorShape: Qt.PointingHandCursor
+                    }
+
+                    // background gradiant
+                    background: Rectangle {
+                        radius: 25
+
+                        scale: loginButton.hovered ? (loginButton.pressed ? 1.05 : 1.03) : 1.0
+
+                        Behavior on scale { NumberAnimation { duration: 80 } }
+
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+
+                            GradientStop { position: 0; color: config.red }
+                            GradientStop { position: 0.166*1; color: config.orange }
+                            GradientStop { position: 0.166*2; color: config.yellow }
+                            GradientStop { position: 0.166*3; color: config.green }
+                            GradientStop { position: 0.166*4; color: config.blue }
+                            GradientStop { position: 1.0; color: config.purple }
+                        }
+                    }
+
+                    onClicked: {
+
+                        sddm.login(
+                            usernameField.text,
+                            passwordField.text,
+                            sessionSwitcher.selectedIndex
+                        )
+                    }
+                }
+
+                // Login Button - error text spacer. width needs at least 1. will be skipped if 0
+                Item { 
+                    width: 1
+                    height: 10
+                }
+
+                // error text
+                Text {
+                    id: errorText
+                    text: "Error haja"
+                    color: config.red
+                    visible: false
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
         
-        QuickAction {
-            iconSource: config.restartIcon
-            label: "Restart"
-            onClicked: sddm.reboot()
-        }
-        
-        QuickAction {
-            iconSource: config.shutdownIcon
-            label: "Shut Down"
-            onClicked: sddm.powerOff()
         }
 
-        
-        SessionSwitcher {
-            id: sessionSwitcher
-            iconSource: config.sessionIcon // ver nota abajo
-            visible: config.sessionSwitcherEnabled.toString().toLowerCase() == "true"
-        }
-        
+        // quick actions
+        Row {
 
+            id: quickActions
+
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: card.bottom
+            anchors.topMargin: 60
+
+            opacity: root.uiVisible ? 1 : 0
+            visible: opacity > 0
+            Behavior on opacity {
+                NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
+            }
+
+            spacing: 30
+
+            QuickAction {
+                iconSource: config.sleepIcon
+                label: "Sleep"
+                onClicked: sddm.suspend()
+            }
+            
+            QuickAction {
+                iconSource: config.restartIcon
+                label: "Restart"
+                onClicked: sddm.reboot()
+            }
+            
+            QuickAction {
+                iconSource: config.shutdownIcon
+                label: "Shut Down"
+                onClicked: sddm.powerOff()
+            }
+
+            
+            SessionSwitcher {
+                id: sessionSwitcher
+                iconSource: config.sessionIcon
+                visible: config.sessionSwitcherEnabled.toString().toLowerCase() == "true"
+                uiRoot: root
+            }
+
+
+        }
     }
 
     // sddm login stuff
