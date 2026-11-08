@@ -1,0 +1,10 @@
+{
+    "KPackageStructure": "Plasma/Shell",
+    "KPlugin": {
+        "Id": "org.catlogin.desktop",
+        "Name": "Catlogin Lockscreen",
+        "Description": "Shows the Catlogin SDDM theme on the Plasma lock screen",
+        "License": "MIT"
+    },
+    "X-Plasma-APIVersion": "2"
+}

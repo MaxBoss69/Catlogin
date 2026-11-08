@@ -8,6 +8,14 @@ Rectangle {
     height: 1080
     color: config.backgroundColor
 
+    // Only the lock screen changes this: after a wrong password it locks the fields
+    // for a moment. In SDDM it simply stays true.
+    property bool inputEnabled: true
+
+    // The lock screen turns this off: the session already belongs to one user,
+    // so the name is only shown there and can't be changed.
+    property bool usernameEditable: true
+
     // visibility of the card
     readonly property bool uiVisible: pointerTracker.hovered || sessionSwitcher.popup.visible
 
@@ -84,6 +92,9 @@ Rectangle {
             // vertical layout
             Column {
                 anchors.horizontalCenter: parent.horizontalCenter
+                // fixed width, otherwise the fields stretch to the width of the weekday text
+                width: 330
+                enabled: root.inputEnabled
                 spacing: 0
 
 
@@ -129,12 +140,18 @@ Rectangle {
                 // positioning the wekkday and date closer together
                 Column {
                     anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width
                     spacing: -20
 
 
                     // weekday
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
+
+                        // long days like "Wednesday" shrink to fit instead of overflowing the card
+                        width: parent.width
+                        horizontalAlignment: Text.AlignHCenter
+                        fontSizeMode: Text.HorizontalFit
 
                         font.family: dayFont.name
                         font.pointSize: 100
@@ -189,6 +206,7 @@ Rectangle {
                     iconSource: config.usernameIcon
                     placeholderText: "Username"
                     text: userModel.lastUser
+                    readOnly: !root.usernameEditable
                     onAccepted: passwordField.forceActiveFocus()
                     fieldFocus: false
                 }
@@ -308,18 +326,21 @@ Rectangle {
             QuickAction {
                 iconSource: config.sleepIcon
                 label: "Sleep"
+                visible: sddm.canSuspend
                 onClicked: sddm.suspend()
             }
             
             QuickAction {
                 iconSource: config.restartIcon
                 label: "Restart"
+                visible: sddm.canReboot
                 onClicked: sddm.reboot()
             }
             
             QuickAction {
                 iconSource: config.shutdownIcon
                 label: "Shut Down"
+                visible: sddm.canPowerOff
                 onClicked: sddm.powerOff()
             }
 

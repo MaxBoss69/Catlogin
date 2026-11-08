@@ -10,6 +10,7 @@ Rectangle {
     property alias iconSource: icon.source
     property alias field: field
     property alias fieldFocus: field.focus
+    property alias readOnly: field.readOnly
 
     signal accepted()
 

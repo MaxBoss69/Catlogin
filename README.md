@@ -15,6 +15,8 @@ No code was copy-pasted from that widget — this is an original QML implementat
 layout is very close to theirs, minus the proprietary font it originally shipped with (swapped here for a freely distributable alternative).
 Full credit to zayronoxi for the original design concept.
 
+## How to Install
+
 ```bash
 sudo cp -r Catlogin /usr/share/sddm/themes/catlogin
 ```
@@ -32,13 +34,19 @@ Then restart SDDM:
 sudo systemctl restart sddm
 ```
 
-## Testing without logging out
+Want Catlogin on the Plasma lock screen (Super / Win + L) too? See [LOCKSCREEN.md](LOCKSCREEN.md).
+
+To remove the theme again, see [UNINSTALL.md](UNINSTALL.md).
+
+## Testing
 
 ```bash
 sddm-greeter-qt6 --test-mode --theme /usr/share/sddm/themes/catlogin
 ```
 
 Note: `--test-mode` disables real login/suspend/reboot/shutdown actions — it's for visual testing only.
+
+For testing the lock screen, see [LOCKSCREEN.md](LOCKSCREEN.md#testing).
 
 ## Configuration
 
